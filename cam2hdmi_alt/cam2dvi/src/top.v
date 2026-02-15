@@ -90,8 +90,8 @@ module top #(
     
     //=========================================================
     //SRAM parameters
-    parameter ADDR_WIDTH          = `DEF_ADDR_WIDTH;        //存储单元是byte，总容量=2^29*16bit = 8Gbit,增加1位rank地址，{rank[0],bank[2:0],row[15:0],cloumn[9:0]}
-    parameter DATA_WIDTH          = `DEF_SRAM_DATA_WIDTH;   //与生成DDR3IP有关，此ddr3 4Gbit, x32， 时钟比例1:4 ，则固定256bit
+    parameter ADDR_WIDTH          = `DEF_ADDR_WIDTH;        //Storage unit is byte, total capacity=2^29*16bit = 8Gbit, add 1-bit rank address, {rank[0],bank[2:0],row[15:0],column[9:0]}
+    parameter DATA_WIDTH          = `DEF_SRAM_DATA_WIDTH;   //Related to DDR3 IP generation, this DDR3 is 4Gbit, x32, clock ratio 1:4, so fixed at 256bit
     parameter WR_VIDEO_WIDTH      = `DEF_WR_VIDEO_WIDTH;  
     parameter RD_VIDEO_WIDTH      = `DEF_RD_VIDEO_WIDTH;  
 
@@ -127,12 +127,12 @@ module top #(
         cmos_vs_cnt <= cmos_vs_cnt + 1;
 
 
-    //状态指示灯
+    //Status indicator LEDs
     assign state_led[4] = ~i2c_done;
     assign state_led[3] = ~cmos_vs_cnt[4];
     assign state_led[2] = ~TMDS_DDR_pll_lock;
     assign state_led[1] = ~DDR_pll_lock; 
-    assign state_led[0] = ~init_calib_complete; //DDR3初始化指示灯
+    assign state_led[0] = ~init_calib_complete; //DDR3 initialization indicator LED
 
 
     wire [15:0] HActive;
@@ -257,7 +257,7 @@ endgenerate
     );
 
     //The video output timing generator and generate a frame read data request
-    //输出
+    //Output
     wire out_de;
     wire [9:0] lcd_x,lcd_y;
 
@@ -310,7 +310,7 @@ else    //800x600
 endgenerate
     
 
-    //输入测试图
+    //Input test pattern
     ///--------------------------
     wire        tp0_vs_in  ;
     wire        tp0_hs_in  ;
@@ -339,8 +339,8 @@ begin
             .I_v_sync    (12'd5        ),//ver sync time   // 12'd4     // 12'd6     // 12'd5     // 12'd5   
             .I_v_bporch  (12'd20       ),//ver back porch  // 12'd23    // 12'd29    // 12'd20    // 12'd36  
             .I_v_res     (12'd720      ),//ver resolution  // 12'd600   // 12'd768   // 12'd720   // 12'd1080 
-            .I_hs_pol    (1'b1         ),//0,负极性;1,正极性
-            .I_vs_pol    (1'b1         ),//0,负极性;1,正极性
+            .I_hs_pol    (1'b1         ),//0: negative polarity; 1: positive polarity
+            .I_vs_pol    (1'b1         ),//0: negative polarity; 1: positive polarity
             .O_de        (tp0_de_in    ),   
             .O_hs        (tp0_hs_in    ),
             .O_vs        (tp0_vs_in    ),
@@ -365,8 +365,8 @@ begin
             .I_v_sync    (12'd4        ),//ver sync time   // 12'd4     // 12'd6     // 12'd5     // 12'd5   
             .I_v_bporch  (12'd23       ),//ver back porch  // 12'd23    // 12'd29    // 12'd20    // 12'd36  
             .I_v_res     (12'd600      ),//ver resolution  // 12'd600   // 12'd768   // 12'd720   // 12'd1080 
-            .I_hs_pol    (1'b1         ),//0,负极性;1,正极性
-            .I_vs_pol    (1'b1         ),//0,负极性;1,正极性
+            .I_hs_pol    (1'b1         ),//0: negative polarity; 1: positive polarity
+            .I_vs_pol    (1'b1         ),//0: negative polarity; 1: positive polarity
             .O_de        (tp0_de_in    ),   
             .O_hs        (tp0_hs_in    ),
             .O_vs        (tp0_vs_in    ),
@@ -409,14 +409,14 @@ endgenerate
 
         // video data input       
         .I_vin0_clk           (fb_vin_clk   ),
-        .I_vin0_vs_n          (~fb_vin_vsync),//只接收负极性
+        .I_vin0_vs_n          (~fb_vin_vsync),//Only accepts negative polarity
         .I_vin0_de            (fb_vin_de    ),
         .I_vin0_data          (fb_vin_data  ),
         .O_vin0_fifo_full     (             ),
 
         // video data output            
         .I_vout0_clk          (video_clk        ),
-        .I_vout0_vs_n         (~syn_off0_vs     ),//只接收负极性
+        .I_vout0_vs_n         (~syn_off0_vs     ),//Only accepts negative polarity
         .I_vout0_de           (out_de           ),
         .O_vout0_den          (off0_syn_de      ),
         .O_vout0_data         (off0_syn_data    ),

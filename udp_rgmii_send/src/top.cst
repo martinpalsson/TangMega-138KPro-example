@@ -1,4 +1,4 @@
-//================IO 位置设置==================================
+//================IO Location Settings==================================
 
 IO_LOC "rst_n" 		G16;
 IO_LOC "sys_clk" 	P16;
@@ -13,7 +13,7 @@ IO_LOC "RGMII_TXD[3]" 	K18;
 IO_LOC "RGMII_TXEN"  	J24;
 IO_LOC "RGMII_RST_N"  	E17;
 
-//================IO 电平设置==================================
+//================IO Voltage Level Settings==================================
 IO_PORT "rst_n" IO_TYPE=LVCMOS33;
 IO_PORT "sys_clk" IO_TYPE=LVCMOS33;
 

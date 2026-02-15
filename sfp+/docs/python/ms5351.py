@@ -5,7 +5,7 @@ def test():
     try:  
         parser = argparse.ArgumentParser()
         parser.add_argument('--com', type=str, default=None)
-        print("开始测试 MS5351 ")    
+        print("Start testing MS5351 ")
         s = parser.parse_args().com
         ser=serial.Serial("COM"+s,115200)
         time.sleep(.500)
@@ -24,9 +24,9 @@ def test():
         (ser.write((b"pll_clk O2=16M\n")))
         (ser.write((b"pll_clk -s\n")))
         time.sleep(.500)
-        print("设置 MS5351 成功\r\n")
+        print("MS5351 configuration successful\r\n")
     except:
         ser.close()
-        print("设置 MS5351 失败\r\n")
+        print("Failed to configure MS5351\r\n")
 
 test()

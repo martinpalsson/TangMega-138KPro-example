@@ -90,7 +90,7 @@ assign vs = vs_reg;
 assign de = h_active & v_active;
 
 
-//列计数
+//Horizontal counter
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -100,7 +100,7 @@ begin
 	else
 		h_cnt <= h_cnt + 12'd1;
 end
-//显示计数
+//Display counter
 always@(posedge clk)
 begin
 	if(h_cnt >= H_FP + H_SYNC + H_BP)//horizontal video active
@@ -115,7 +115,7 @@ begin
 	else
 		active_y <= active_y;
 end
-//行计数
+//Vertical counter
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -128,7 +128,7 @@ begin
 	else
 		v_cnt <= v_cnt;
 end
-//HS生成
+//HS generation
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -140,7 +140,7 @@ begin
 	else
 		hs_reg <= hs_reg;
 end
-//列有效
+//Horizontal active
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -152,7 +152,7 @@ begin
 	else
 		h_active <= h_active;
 end
-//VS生成
+//VS generation
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -164,7 +164,7 @@ begin
 	else
 		vs_reg <= vs_reg;
 end
-//行有效
+//Vertical active
 always@(posedge clk or posedge rst)
 begin
 	if(rst == 1'b1)

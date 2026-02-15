@@ -1,13 +1,13 @@
 module top#(
 )(
-	input 		clk,  //输入 时钟源  
+	input 		clk,  //Input clock source
 
 	output      WS2812
 );
 
 ws2812 ws2812_inst(
-	.clk(clk),  //输入 时钟源  
-	.WS2812(WS2812) //输出到WS2812的接口	
+	.clk(clk),  //Input clock source
+	.WS2812(WS2812) //Output interface to WS2812
 );
 
 endmodule

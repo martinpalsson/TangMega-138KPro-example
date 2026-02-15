@@ -1,18 +1,18 @@
-//audio驱动
+//audio driver
 module audio_drive(
-    input        clk_1p536m,//bit时钟，每个采样点占32个clk_1p536m(左右声道各16)
-    input        rst_n     ,//低电平有效异步复位信号
-    //用户数据接口
+    input        clk_1p536m,//bit clock, each sample occupies 32 clk_1p536m cycles (16 for left and 16 for right channel)
+    input        rst_n     ,//active low asynchronous reset signal
+    //user data interface
     input [15:0] idata     ,
-    output       req       ,//数据请求信号，可接外部FIFO的读请求(为避免空读，尽量和!fifo_empty相与后作为fifo_rd)
-    //audio接口
-    output       HP_BCK   ,//同clk_1p536m
-    output       HP_WS    ,//左右声道切换信号，低电平对应左声道
-    output       HP_DIN    //dac串行数据输入信号
+    output       req       ,//data request signal, can be connected to external FIFO read request (to avoid empty reads, AND with !fifo_empty before using as fifo_rd)
+    //audio interface
+    output       HP_BCK   ,//same as clk_1p536m
+    output       HP_WS    ,//left/right channel select signal, low level corresponds to left channel
+    output       HP_DIN    //DAC serial data input signal
 );
 reg [4:0] b_cnt;
-reg       req_r,req_r1;//req_r1延迟req_r一个时钟
-reg [15:0] idata_r;//暂存idata,用于移位并转串时的中间变量
+reg       req_r,req_r1;//req_r1 is req_r delayed by one clock cycle
+reg [15:0] idata_r;//temporary storage for idata, intermediate variable used for shift and parallel-to-serial conversion
 reg HP_WS_r,HP_DIN_r;
 assign HP_BCK = clk_1p536m;
 assign HP_WS  = HP_WS_r   ;
@@ -32,7 +32,7 @@ begin
 if(!rst_n)
     req_r <= 1'b0;
 else
-    req_r <= (b_cnt == 5'd0) || (b_cnt == 5'd16);//每16个时钟读入一个数据
+    req_r <= (b_cnt == 5'd0) || (b_cnt == 5'd16);//read one data every 16 clock cycles
 end
 //idata_r
 always@(posedge clk_1p536m or negedge rst_n)
@@ -62,6 +62,6 @@ begin
 if(!rst_n)
     HP_WS_r <= 1'b0;
 else
-    HP_WS_r <= (b_cnt == 5'd3)?1'b0: ((b_cnt == 5'd19)?1'b1:HP_WS_r);//对齐数据
+    HP_WS_r <= (b_cnt == 5'd3)?1'b0: ((b_cnt == 5'd19)?1'b1:HP_WS_r);//align data
 end
 endmodule

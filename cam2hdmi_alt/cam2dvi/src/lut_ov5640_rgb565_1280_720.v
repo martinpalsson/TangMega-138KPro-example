@@ -215,13 +215,13 @@ generate
 		    10'd199: lut_data <= {8'h78 , 24'h530b_04};
 		    10'd200: lut_data <= {8'h78 , 24'h530c_06};
 		    10'd201: lut_data <= {8'h78 , 24'h5025_00};
-			//系统时钟分频
+			//System clock divider
 		    10'd202: lut_data <= {8'h78 , 24'h3035_11};	//41:15fps, 21:30Fps, 11:60Fps
 		    10'd203: 
 				if(USE_4vs3_frame == "true")
-					 lut_data <= {8'h78 , 24'h3036_72}; //PLL倍频 , 800x600(0x5A)
+					 lut_data <= {8'h78 , 24'h3036_72}; //PLL multiplier, 800x600(0x5A)
 				else
-					 lut_data <= {8'h78 , 24'h3036_69}; //PLL倍频 , 1280x720(0x69)
+					 lut_data <= {8'h78 , 24'h3036_69}; //PLL multiplier, 1280x720(0x69)
 		    10'd204: lut_data <= {8'h78 , 24'h3c07_08};
 		    10'd205: lut_data <= {8'h78 , 24'h3820_41}; //Sensor vflip, 47=N, 41=T
 		    10'd206: lut_data <= {8'h78 , 24'h3821_01}; //Sensor mirror, 01=N, 07=T
@@ -248,14 +248,14 @@ generate
 				else
 		    		lut_data <= {8'h78 , 24'h3807_a9}; //16:9 use a9
 		    //10'd216: lut_data <= {8'h78 , 24'h3807_a9}; //4:3 use 9b
-		    10'd217: lut_data <= {8'h78 , {16'h3808, 4'd0, HActive[11:8]}};	//DVP 输出水平像素点数高4位
-		    10'd218: lut_data <= {8'h78 , {16'h3809, HActive[7:0]}};		//DVP 输出水平像素点数低8位
-		    10'd219: lut_data <= {8'h78 , {16'h380a, 4'd0, VActive[11:8]}};	//DVP 输出垂直像素点数高3位
-		    10'd220: lut_data <= {8'h78 , {16'h380b, VActive[7:0]}};		//DVP 输出垂直像素点数低8位
-		    10'd221: lut_data <= {8'h78 , {16'h380c, 3'd0, HTotal[12:8]}};	//水平总像素大小高5位
-		    10'd222: lut_data <= {8'h78 , {16'h380d, HTotal[7:0]}};			//水平总像素大小低8位
-		    10'd223: lut_data <= {8'h78 , {16'h380e, 3'd0, VTotal[12:8]}};	//垂直总像素大小高5位
-		    10'd224: lut_data <= {8'h78 , {16'h380f, VTotal[7:0]}};			//垂直总像素大小低8位
+		    10'd217: lut_data <= {8'h78 , {16'h3808, 4'd0, HActive[11:8]}};	//DVP output horizontal pixel count high 4 bits
+		    10'd218: lut_data <= {8'h78 , {16'h3809, HActive[7:0]}};		//DVP output horizontal pixel count low 8 bits
+		    10'd219: lut_data <= {8'h78 , {16'h380a, 4'd0, VActive[11:8]}};	//DVP output vertical pixel count high 3 bits
+		    10'd220: lut_data <= {8'h78 , {16'h380b, VActive[7:0]}};		//DVP output vertical pixel count low 8 bits
+		    10'd221: lut_data <= {8'h78 , {16'h380c, 3'd0, HTotal[12:8]}};	//Horizontal total pixel size high 5 bits
+		    10'd222: lut_data <= {8'h78 , {16'h380d, HTotal[7:0]}};			//Horizontal total pixel size low 8 bits
+		    10'd223: lut_data <= {8'h78 , {16'h380e, 3'd0, VTotal[12:8]}};	//Vertical total pixel size high 5 bits
+		    10'd224: lut_data <= {8'h78 , {16'h380f, VTotal[7:0]}};			//Vertical total pixel size low 8 bits
 		    10'd225: 
 				if(USE_4vs3_frame == "true")
 					lut_data <= {8'h78 , 24'h3813_06};	//4:3 use 06
@@ -282,12 +282,12 @@ generate
 				else
 		    		lut_data <= {8'h78 , 24'h5001_83};
 		    10'd241: lut_data <= {8'h78 , 24'h3b07_0a};
-			//彩条测试使能
-		    10'd242: lut_data <= {8'h78 , 24'h503d_00}; //0x00:正常模式 0x80:彩条显示
-			//闪光灯禁用
+			//Color bar test enable
+		    10'd242: lut_data <= {8'h78 , 24'h503d_00}; //0x00: Normal mode, 0x80: Color bar display
+			//Flash light disable
 		    10'd243: lut_data <= {8'h78 , 24'h3016_00}; //Disable
 		    10'd244: lut_data <= {8'h78 , 24'h301c_00};
-		    10'd245: lut_data <= {8'h78 , 24'h3019_00}; //关闭闪光灯
+		    10'd245: lut_data <= {8'h78 , 24'h3019_00}; //Turn off flash light
 		    10'd246: lut_data <= {8'h78 , 24'h3031_08}; //Bypass regulator
 		    10'd247: lut_data <= {8'h78 , 24'h302c_C2}; //output drive 4x
 		    10'd248: lut_data <= {8'hff , 24'hffff_ff};

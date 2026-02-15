@@ -1,11 +1,11 @@
 module top#(
-	parameter BOARD_MAC 	= 48'h11_45_14_19_19_81 		,//开发板MAC地址
-	parameter BOARD_IP 		= {8'd192,8'd168,8'd3,8'd2}	, 	//开发板IP地址
-	parameter BOARD_PORT	= 16'h8000, 					 //开发板IP地址-端口 
-	parameter DES_MAC 		= 48'hff_ff_ff_ff_ff_ff 		,//目的MAC地址
-	parameter DES_IP 		= {8'd192,8'd168,8'd3,8'd3} 	,//目的IP地址
-	parameter DES_PORT		= 16'h8000, 					 //目的IP地址-端口 
-	parameter DATA_SIZE		= 16'd256						 //数据包长度 46~1500 B
+	parameter BOARD_MAC 	= 48'h11_45_14_19_19_81 		,//Board MAC address
+	parameter BOARD_IP 		= {8'd192,8'd168,8'd3,8'd2}	, 	//Board IP address
+	parameter BOARD_PORT	= 16'h8000, 					 //Board IP address - port
+	parameter DES_MAC 		= 48'hff_ff_ff_ff_ff_ff 		,//Destination MAC address
+	parameter DES_IP 		= {8'd192,8'd168,8'd3,8'd3} 	,//Destination IP address
+	parameter DES_PORT		= 16'h8000, 					 //Destination IP address - port
+	parameter DATA_SIZE		= 16'd256						 //Packet length 46~1500 B
 	)(
 	input 			sys_clk,
 	input 			rst_n, 			
@@ -19,7 +19,7 @@ module top#(
 	);
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// 			    GMII发送子模块 	        /////////////////////////////
+//////////////////// 			    GMII Transmit Submodule 	        /////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 GMII_pll GMII_pll_m0(
@@ -31,13 +31,13 @@ GMII_pll GMII_pll_m0(
 wire GMII_TXEN;
 wire [7:0] GMII_TXD;
 GMII_send #(
-	.BOARD_MAC 	(BOARD_MAC  ),//开发板MAC地址
-	.BOARD_IP 	(BOARD_IP 	),//开发板IP地址
+	.BOARD_MAC 	(BOARD_MAC  ),//Board MAC address
+	.BOARD_IP 	(BOARD_IP 	),//Board IP address
 	.BOARD_PORT (BOARD_PORT ),
-	.DES_MAC 	(DES_MAC 	),//目的MAC地址
-	.DES_IP 	(DES_IP 	),//目的IP地址
+	.DES_MAC 	(DES_MAC 	),//Destination MAC address
+	.DES_IP 	(DES_IP 	),//Destination IP address
 	.DES_PORT 	(DES_PORT 	),
-	.DATA_SIZE	(DATA_SIZE	) //数据包长度 50~1500B
+	.DATA_SIZE	(DATA_SIZE	) //Packet length 50~1500B
 	)GMII_send_m0(
 	.rst_n 			(rst_n 				),
 

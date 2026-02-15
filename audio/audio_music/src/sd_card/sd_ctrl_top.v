@@ -1,17 +1,17 @@
 //****************************************Copyright (c)***********************************//
-//技术支持：www.openedv.com
-//淘宝店铺：http://openedv.taobao.com 
-//关注微信公众平台微信号："正点原子"，免费获取FPGA & STM32资料。
-//版权所有，盗版必究。
-//Copyright(C) 正点原子 2018-2028
-//All rights reserved                               
+//Technical support: www.openedv.com
+//Taobao store: http://openedv.taobao.com
+//Follow WeChat official account "Punctual Atom" for free FPGA & STM32 materials.
+//All rights reserved. Piracy will be prosecuted.
+//Copyright(C) Punctual Atom 2018-2028
+//All rights reserved
 //----------------------------------------------------------------------------------------
 // File name:           sd_ctrl_top
 // Last modified Date:  2018/3/18 8:41:06
 // Last Version:        V1.0
-// Descriptions:        SD卡顶层控制模块
+// Descriptions:        SD card top-level control module
 //----------------------------------------------------------------------------------------
-// Created by:          正点原子
+// Created by:          Punctual Atom
 // Created date:        2018/3/18 8:41:06
 // Version:             V1.0
 // Descriptions:        The original version
@@ -20,47 +20,47 @@
 //****************************************************************************************//
 
 module sd_ctrl_top(
-    input                clk_ref       ,  //时钟信号
-    input                clk_ref_180deg,  //时钟信号,与clk_ref相位相差180度
-    input                rst_n         ,  //复位信号,低电平有效
-    //SD卡接口
-    input                sd_miso       ,  //SD卡SPI串行输入数据信号
-    output               sd_clk        ,  //SD卡SPI时钟信号    
-    output  reg          sd_cs         ,  //SD卡SPI片选信号
-    output  reg          sd_mosi       ,  //SD卡SPI串行输出数据信号
-    //用户写SD卡接口
-    input                wr_start_en   ,  //开始写SD卡数据信号
-    input        [31:0]  wr_sec_addr   ,  //写数据扇区地址
-    input        [15:0]  wr_data       ,  //写数据                  
-    output               wr_busy       ,  //写数据忙信号
-    output               wr_req        ,  //写数据请求信号    
-    //用户读SD卡接口
-    input                rd_start_en   ,  //开始读SD卡数据信号
-    input        [31:0]  rd_sec_addr   ,  //读数据扇区地址
-    output               rd_busy       ,  //读数据忙信号
-    output               rd_val_en     ,  //读数据有效信号
-    output       [15:0]  rd_val_data   ,  //读数据    
-    
-    output               sd_init_done     //SD卡初始化完成信号
+    input                clk_ref       ,  //Clock signal
+    input                clk_ref_180deg,  //Clock signal, 180 degrees phase offset from clk_ref
+    input                rst_n         ,  //Reset signal, active low
+    //SD card interface
+    input                sd_miso       ,  //SD card SPI serial input data signal
+    output               sd_clk        ,  //SD card SPI clock signal
+    output  reg          sd_cs         ,  //SD card SPI chip select signal
+    output  reg          sd_mosi       ,  //SD card SPI serial output data signal
+    //User write SD card interface
+    input                wr_start_en   ,  //Start writing SD card data signal
+    input        [31:0]  wr_sec_addr   ,  //Write data sector address
+    input        [15:0]  wr_data       ,  //Write data
+    output               wr_busy       ,  //Write data busy signal
+    output               wr_req        ,  //Write data request signal
+    //User read SD card interface
+    input                rd_start_en   ,  //Start reading SD card data signal
+    input        [31:0]  rd_sec_addr   ,  //Read data sector address
+    output               rd_busy       ,  //Read data busy signal
+    output               rd_val_en     ,  //Read data valid signal
+    output       [15:0]  rd_val_data   ,  //Read data
+
+    output               sd_init_done     //SD card initialization complete signal
     );
 
 //wire define
-wire                init_sd_cs    ;       //初始化模块SD片选信号
-wire                init_sd_mosi  ;       //初始化模块SD数据输出信号
-wire                wr_sd_cs      ;       //写数据模块SD片选信号     
-wire                wr_sd_mosi    ;       //写数据模块SD数据输出信号 
-wire                rd_sd_cs      ;       //读数据模块SD片选信号     
-wire                rd_sd_mosi    ;       //读数据模块SD数据输出信号 
+wire                init_sd_cs    ;       //Initialization module SD chip select signal
+wire                init_sd_mosi  ;       //Initialization module SD data output signal
+wire                wr_sd_cs      ;       //Write data module SD chip select signal
+wire                wr_sd_mosi    ;       //Write data module SD data output signal
+wire                rd_sd_cs      ;       //Read data module SD chip select signal
+wire                rd_sd_mosi    ;       //Read data module SD data output signal
 
 //*****************************************************
 //**                    main code
 //*****************************************************
 
-assign  sd_clk = clk_ref_180deg;          //SD卡的SPI_CLK        
+assign  sd_clk = clk_ref_180deg;          //SD card SPI_CLK
 
-//SD卡接口信号选择
+//SD card interface signal selection
 always @(*) begin
-    //SD卡初始化完成之前,端口信号和初始化模块信号相连
+    //Before SD card initialization is complete, port signals are connected to initialization module signals
     if(sd_init_done == 1'b0) begin     
         sd_cs <= init_sd_cs;
         sd_mosi <= init_sd_mosi;
@@ -79,7 +79,7 @@ always @(*) begin
     end    
 end    
 
-//SD卡初始化
+//SD card initialization
 sd_init u_sd_init(
     .clk_ref            (clk_ref),
     .clk_ref_180deg     (clk_ref_180deg),
@@ -92,7 +92,7 @@ sd_init u_sd_init(
     .sd_init_done       (sd_init_done)
     );
 
-//SD卡写数据
+//SD card write data
 sd_write u_sd_write(
     .clk_ref            (clk_ref),
     .clk_ref_180deg     (clk_ref_180deg),
@@ -101,7 +101,7 @@ sd_write u_sd_write(
     .sd_miso            (sd_miso),
     .sd_cs              (wr_sd_cs),
     .sd_mosi            (wr_sd_mosi),
-    //SD卡初始化完成之后响应写操作    
+    //Respond to write operations after SD card initialization is complete
     .wr_start_en        (wr_start_en & sd_init_done),  
     .wr_sec_addr        (wr_sec_addr),
     .wr_data            (wr_data),
@@ -109,7 +109,7 @@ sd_write u_sd_write(
     .wr_req             (wr_req)
     );
 
-//SD卡读数据
+//SD card read data
 sd_read u_sd_read(
     .clk_ref            (clk_ref),
     .clk_ref_180deg     (clk_ref_180deg),
@@ -118,7 +118,7 @@ sd_read u_sd_read(
     .sd_miso            (sd_miso),
     .sd_cs              (rd_sd_cs),
     .sd_mosi            (rd_sd_mosi),    
-    //SD卡初始化完成之后响应读操作
+    //Respond to read operations after SD card initialization is complete
     .rd_start_en        (rd_start_en & sd_init_done),  
     .rd_sec_addr        (rd_sec_addr),
     .rd_busy            (rd_busy),

@@ -1,17 +1,17 @@
 //****************************************Copyright (c)***********************************//
-//技术支持：www.openedv.com
-//淘宝店铺：http://openedv.taobao.com 
-//关注微信公众平台微信号："正点原子"，免费获取FPGA & STM32资料。
-//版权所有，盗版必究。
-//Copyright(C) 正点原子 2018-2028
-//All rights reserved                               
+//Technical support: www.openedv.com
+//Taobao store: http://openedv.taobao.com
+//Follow WeChat official account "Punctual Atom" for free FPGA & STM32 materials.
+//All rights reserved. Piracy will be prosecuted.
+//Copyright(C) Punctual Atom 2018-2028
+//All rights reserved
 //----------------------------------------------------------------------------------------
 // File name:           sd_write
 // Last modified Date:  2018/3/18 8:41:06
 // Last Version:        V1.0
-// Descriptions:        SD卡写数据
+// Descriptions:        SD card write data
 //----------------------------------------------------------------------------------------
-// Created by:          正点原子
+// Created by:          Punctual Atom
 // Created date:        2018/3/18 8:41:06
 // Version:             V1.0
 // Descriptions:        The original version
@@ -20,43 +20,43 @@
 //****************************************************************************************//
 
 module sd_write(
-    input                clk_ref       ,  //时钟信号
-    input                clk_ref_180deg,  //时钟信号,与sd_clk相位相差180度
-    input                rst_n         ,  //复位信号,低电平有效
-    //SD卡接口
-    input                sd_miso       ,  //SD卡SPI串行输入数据信号
-    output  reg          sd_cs         ,  //SD卡SPI片选信号
-    output  reg          sd_mosi       ,  //SD卡SPI串行输出数据信号
-    //用户写接口    
-    input                wr_start_en   ,  //开始写SD卡数据信号
-    input        [31:0]  wr_sec_addr   ,  //写数据扇区地址
-    input        [15:0]  wr_data       ,  //写数据                          
-    output  reg          wr_busy       ,  //写数据忙信号
-    output  reg          wr_req           //写数据请求信号
+    input                clk_ref       ,  //Clock signal
+    input                clk_ref_180deg,  //Clock signal, 180 degrees phase offset from sd_clk
+    input                rst_n         ,  //Reset signal, active low
+    //SD card interface
+    input                sd_miso       ,  //SD card SPI serial input data signal
+    output  reg          sd_cs         ,  //SD card SPI chip select signal
+    output  reg          sd_mosi       ,  //SD card SPI serial output data signal
+    //User write interface
+    input                wr_start_en   ,  //Start writing SD card data signal
+    input        [31:0]  wr_sec_addr   ,  //Write data sector address
+    input        [15:0]  wr_data       ,  //Write data
+    output  reg          wr_busy       ,  //Write data busy signal
+    output  reg          wr_req           //Write data request signal
     );
 
 //parameter define
-parameter  HEAD_BYTE = 8'hfe    ;         //数据头
+parameter  HEAD_BYTE = 8'hfe    ;         //Data header
                              
 //reg define                    
-reg            wr_en_d0         ;         //wr_start_en信号延时打拍
-reg            wr_en_d1         ;   
-reg            res_en           ;         //接收SD卡返回数据有效信号      
-reg    [7:0]   res_data         ;         //接收SD卡返回数据                 
-reg            res_flag         ;         //开始接收返回数据的标志
-reg    [5:0]   res_bit_cnt      ;         //接收位数据计数器                   
-                                
-reg    [3:0]   wr_ctrl_cnt      ;         //写控制计数器
-reg    [47:0]  cmd_wr           ;         //写命令
-reg    [5:0]   cmd_bit_cnt      ;         //写命令位计数器
-reg    [3:0]   bit_cnt          ;         //写数据位计数器
-reg    [8:0]   data_cnt         ;         //写入数据数量
-reg    [15:0]  wr_data_t        ;         //寄存写入的数据，防止发生改变
-reg            detect_done_flag ;         //检测写空闲信号的标志
-reg    [7:0]   detect_data      ;         //检测到的数据
+reg            wr_en_d0         ;         //wr_start_en signal delayed register
+reg            wr_en_d1         ;
+reg            res_en           ;         //SD card return data valid signal
+reg    [7:0]   res_data         ;         //SD card return data
+reg            res_flag         ;         //Flag to start receiving return data
+reg    [5:0]   res_bit_cnt      ;         //Receive bit data counter
+
+reg    [3:0]   wr_ctrl_cnt      ;         //Write control counter
+reg    [47:0]  cmd_wr           ;         //Write command
+reg    [5:0]   cmd_bit_cnt      ;         //Write command bit counter
+reg    [3:0]   bit_cnt          ;         //Write data bit counter
+reg    [8:0]   data_cnt         ;         //Write data count
+reg    [15:0]  wr_data_t        ;         //Register write data to prevent changes
+reg            detect_done_flag ;         //Flag to detect write idle signal
+reg    [7:0]   detect_data      ;         //Detected data
 
 //wire define
-wire           pos_wr_en        ;         //开始写SD卡数据信号的上升沿
+wire           pos_wr_en        ;         //Rising edge of start writing SD card data signal
 
 //*****************************************************
 //**                    main code
@@ -64,7 +64,7 @@ wire           pos_wr_en        ;         //开始写SD卡数据信号的上升�
 
 assign  pos_wr_en = (~wr_en_d1) & wr_en_d0;
 
-//wr_start_en信号延时打拍
+//Delay and register wr_start_en signal
 always @(posedge clk_ref or negedge rst_n) begin
     if(!rst_n) begin
         wr_en_d0 <= 1'b0;
@@ -76,17 +76,17 @@ always @(posedge clk_ref or negedge rst_n) begin
     end        
 end 
 
-//接收sd卡返回的响应数据
-//在clk_ref_180deg(sd_clk)的上升沿锁存数据
+//Receive response data returned from SD card
+//Latch data on rising edge of clk_ref_180deg (sd_clk)
 always @(posedge clk_ref_180deg or negedge rst_n) begin
     if(!rst_n) begin
         res_en <= 1'b0;
         res_data <= 8'd0;
         res_flag <= 1'b0;
         res_bit_cnt <= 6'd0;
-    end    
+    end
     else begin
-        //sd_miso = 0 开始接收响应数据
+        //sd_miso = 0, start receiving response data
         if(sd_miso == 1'b0 && res_flag == 1'b0) begin
             res_flag <= 1'b1;
             res_data <= {res_data[6:0],sd_miso};
@@ -107,7 +107,7 @@ always @(posedge clk_ref_180deg or negedge rst_n) begin
     end
 end 
 
-//写完数据后检测SD卡是否空闲
+//Detect if SD card is idle after writing data
 always @(posedge clk_ref or negedge rst_n) begin
     if(!rst_n)
         detect_data <= 8'd0;   
@@ -117,7 +117,7 @@ always @(posedge clk_ref or negedge rst_n) begin
         detect_data <= 8'd0;    
 end        
 
-//SD卡写入数据
+//SD card write data
 always @(posedge clk_ref or negedge rst_n) begin
     if(!rst_n) begin
         sd_cs <= 1'b1;
@@ -136,26 +136,26 @@ always @(posedge clk_ref or negedge rst_n) begin
         wr_req <= 1'b0;
         case(wr_ctrl_cnt)
             4'd0 : begin
-                wr_busy <= 1'b0;                          //写空闲
+                wr_busy <= 1'b0;                          //Write idle
                 sd_cs <= 1'b1;                                 
                 sd_mosi <= 1'b1;                               
                 if(pos_wr_en) begin                            
-                    cmd_wr <= {8'h58,wr_sec_addr,8'hff};    //写入单个命令块CMD24
-                    wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;      //控制计数器加1
-                    //开始执行写入数据,拉高写忙信号
+                    cmd_wr <= {8'h58,wr_sec_addr,8'hff};    //Single block write command CMD24
+                    wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;      //Increment control counter
+                    //Start executing data write, assert write busy signal
                     wr_busy <= 1'b1;                      
                 end                                            
             end   
             4'd1 : begin
-                if(cmd_bit_cnt <= 6'd47) begin              //开始按位发送写命令
+                if(cmd_bit_cnt <= 6'd47) begin              //Start sending write command bit by bit
                     cmd_bit_cnt <= cmd_bit_cnt + 6'd1;
                     sd_cs <= 1'b0;
-                    sd_mosi <= cmd_wr[6'd47 - cmd_bit_cnt]; //先发送高字节                 
+                    sd_mosi <= cmd_wr[6'd47 - cmd_bit_cnt]; //Send MSB first
                 end    
                 else begin
                     sd_mosi <= 1'b1;
-                    if(res_en) begin                        //SD卡响应
-                        wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;  //控制计数器加1 
+                    if(res_en) begin                        //SD card response
+                        wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;  //Increment control counter
                         cmd_bit_cnt <= 6'd0;
                         bit_cnt <= 4'd1;
                     end    
@@ -163,58 +163,58 @@ always @(posedge clk_ref or negedge rst_n) begin
             end                                                                                                     
             4'd2 : begin                                       
                 bit_cnt <= bit_cnt + 4'd1;     
-                //bit_cnt = 0~7 等待8个时钟周期
-                //bit_cnt = 8~15,写入命令头8'hfe        
+                //bit_cnt = 0~7, wait 8 clock cycles
+                //bit_cnt = 8~15, write command header 0xfe
                 if(bit_cnt>=4'd8 && bit_cnt <= 4'd15) begin
-                    sd_mosi <= HEAD_BYTE[4'd15-bit_cnt];    //先发送高字节
+                    sd_mosi <= HEAD_BYTE[4'd15-bit_cnt];    //Send MSB first
                     if(bit_cnt == 4'd14)                       
-                        wr_req <= 1'b1;                   //提前拉高写数据请求信号
+                        wr_req <= 1'b1;                   //Assert write data request signal in advance
                     else if(bit_cnt == 4'd15)                  
-                        wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;  //控制计数器加1   
+                        wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;  //Increment control counter
                 end                                            
             end                                                
-            4'd3 : begin                                    //写入数据
+            4'd3 : begin                                    //Write data
                 bit_cnt <= bit_cnt + 4'd1;                     
                 if(bit_cnt == 4'd0) begin                      
-                    sd_mosi <= wr_data[4'd15-bit_cnt];      //先发送数据高位     
-                    wr_data_t <= wr_data;                   //寄存数据   
+                    sd_mosi <= wr_data[4'd15-bit_cnt];      //Send data MSB first
+                    wr_data_t <= wr_data;                   //Register data
                 end                                            
                 else                                           
-                    sd_mosi <= wr_data_t[4'd15-bit_cnt];    //先发送数据高位
+                    sd_mosi <= wr_data_t[4'd15-bit_cnt];    //Send data MSB first
                 if((bit_cnt == 4'd14) && (data_cnt < 9'd255)) 
                     wr_req <= 1'b1;                          
                 if(bit_cnt == 4'd15) begin                     
                     data_cnt <= data_cnt + 9'd1;  
-                    //写入单个BLOCK共512个字节 = 256 * 16bit             
+                    //Write a single BLOCK of 512 bytes = 256 * 16bit
                     if(data_cnt == 9'd255) begin
                         data_cnt <= 9'd0;            
-                        //写入数据完成,控制计数器加1          
+                        //Data write complete, increment control counter
                         wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;      
                     end                                        
                 end                                            
             end       
-            //写入2个字节CRC校验,由于SPI模式下不检测校验值,此处写入两个字节的8'hff                                         
+            //Write 2 bytes CRC checksum, since CRC is not checked in SPI mode, write two bytes of 0xff here
             4'd4 : begin                                       
                 bit_cnt <= bit_cnt + 4'd1;                  
                 sd_mosi <= 1'b1;                 
-                //crc写入完成,控制计数器加1              
+                //CRC write complete, increment control counter
                 if(bit_cnt == 4'd15)                           
                     wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;            
             end                                                
             4'd5 : begin                                    
-                if(res_en)                                  //SD卡响应   
+                if(res_en)                                  //SD card response
                     wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;         
             end                                                
-            4'd6 : begin                                    //等待写完成           
+            4'd6 : begin                                    //Wait for write complete
                 detect_done_flag <= 1'b1;                   
-                //detect_data = 8'hff时,SD卡写入完成,进入空闲状态
+                //When detect_data = 8'hff, SD card write is complete, entering idle state
                 if(detect_data == 8'hff) begin              
                     wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;         
                     detect_done_flag <= 1'b0;                  
                 end         
             end    
             default : begin
-                //进入空闲状态后,拉高片选信号,等待8个时钟周期
+                //After entering idle state, assert chip select high, wait 8 clock cycles
                 sd_cs <= 1'b1;   
                 wr_ctrl_cnt <= wr_ctrl_cnt + 4'd1;
             end     

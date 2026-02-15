@@ -1,28 +1,28 @@
-//功能：FIFO接口的SD卡读控制模块，支持多扇区循环读出
+//Function: SD card read control module with FIFO interface, supports multi-sector cyclic reading
 module sd_ctrl_read(
-    input             sd_clk, //sd卡的工作时钟
-    input             rst_n,  //异步复位，低有效
-    //用户接口
-    input  [31:0]     start_section,//起始扇区地址
-    input  [31:0]     end_section,  //结束扇区地址
-    //FIFO将满信号
+    input             sd_clk, //SD card working clock
+    input             rst_n,  //Asynchronous reset, active low
+    //User interface
+    input  [31:0]     start_section,//Start sector address
+    input  [31:0]     end_section,  //End sector address
+    //FIFO almost full signal
     input             fifo_almost_full,
-    //读SD卡接口
-    output reg        rd_start_en   ,  //开始读SD卡数据信号
-    output reg [31:0] rd_sec_addr   ,  //读数据扇区地址
-    input             rd_busy       ,  //读数据忙信号
-    input             sd_init_done     //SD卡初始化完成信号
+    //SD card read interface
+    output reg        rd_start_en   ,  //Start reading SD card data signal
+    output reg [31:0] rd_sec_addr   ,  //Read data sector address
+    input             rd_busy       ,  //Read data busy signal
+    input             sd_init_done     //SD card initialization complete signal
     );
 
 //reg define
-reg    [1:0]          rd_flow_cnt      ;    //读数据流程控制计数器
-reg                   rd_busy_d0       ;    //读忙信号打拍，用来采下降沿
-reg                   rd_busy_d1       ;  
+reg    [1:0]          rd_flow_cnt      ;    //Read data flow control counter
+reg                   rd_busy_d0       ;    //Read busy signal delayed, used to capture falling edge
+reg                   rd_busy_d1       ;
 //wire define
 wire neg_rd_busy;
-wire read_able_w;//可读标志信号
-assign read_able_w = (sd_init_done && !rd_busy && !fifo_almost_full);//FIFO将满信号为高时不可读出SD卡数据，否则数据无处存放
-//对rd_busy信号进行延时打拍,用于采rd_busy信号的下降沿
+wire read_able_w;//Read-ready flag signal
+assign read_able_w = (sd_init_done && !rd_busy && !fifo_almost_full);//Cannot read SD card data when FIFO almost full signal is high, otherwise data has nowhere to be stored
+//Delay and register rd_busy signal, used to capture the falling edge of rd_busy
 assign  neg_rd_busy = rd_busy_d1 & (~rd_busy_d0);
 always @(posedge sd_clk or negedge rst_n) begin
     if(rst_n == 1'b0) begin
@@ -34,7 +34,7 @@ always @(posedge sd_clk or negedge rst_n) begin
         rd_busy_d1 <= rd_busy_d0;
     end
 end
-//读取SD卡中的数据
+//Read data from SD card
 always @(posedge sd_clk or negedge rst_n) 
 begin
 if(!rst_n) begin
@@ -44,23 +44,23 @@ if(!rst_n) begin
 end
 else begin
 	case(rd_flow_cnt)
-	2'd0 : begin//等待SD卡初始化完成,完成后进入读出数据状态	 
-		rd_sec_addr <= start_section;//输出的读扇区地址寄存器，初始化赋值为起始扇区地址
+	2'd0 : begin//Wait for SD card initialization to complete, then enter read data state
+		rd_sec_addr <= start_section;//Output read sector address register, initialized to start sector address
 		rd_flow_cnt <= read_able_w?2'd1 : rd_flow_cnt;
 		rd_start_en <= read_able_w;
 	end
-	2'd1 : begin//检测一个扇区是否读完，neg_rd_busy为高即读完
+	2'd1 : begin//Check if one sector read is complete, neg_rd_busy high means done
 	    rd_start_en <= 1'b0;
-		rd_flow_cnt <= neg_rd_busy?2'd2:2'd1;//检测到neg_rd_busy下降沿，则准备开启下一扇区读操作
-	    rd_sec_addr <= neg_rd_busy?rd_sec_addr+1:rd_sec_addr;    //通过neg_rd_busy增加扇区地址                 
+		rd_flow_cnt <= neg_rd_busy?2'd2:2'd1;//When neg_rd_busy falling edge detected, prepare to start next sector read
+	    rd_sec_addr <= neg_rd_busy?rd_sec_addr+1:rd_sec_addr;    //Increment sector address on neg_rd_busy                 
 	end
    2'd2:begin
-	    rd_start_en <= (rd_sec_addr <= end_section) && !fifo_almost_full;//读出缓冲fifo有足够空间才开启一个扇区的读操作
-		 if(rd_sec_addr > end_section)//将要读的扇区数超过end_section，则返回2'd0状态
+	    rd_start_en <= (rd_sec_addr <= end_section) && !fifo_almost_full;//Only start a sector read when read buffer FIFO has enough space
+		 if(rd_sec_addr > end_section)//If sector to read exceeds end_section, return to state 2'd0
 		     rd_flow_cnt <= 2'd0;
-		 else if(!fifo_almost_full)   //将要读的扇区数不超过end_section，并且读出缓冲fifo有足够空间，则开启一次扇区读
+		 else if(!fifo_almost_full)   //If sector to read does not exceed end_section and read buffer FIFO has enough space, start a sector read
 		     rd_flow_cnt <= 2'd1;
-		 else                         //否则一直等待!fifo_almost_full
+		 else                         //Otherwise keep waiting for !fifo_almost_full
 		     rd_flow_cnt <= 2'd2;
 	end
 	default : ;

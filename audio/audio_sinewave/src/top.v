@@ -4,22 +4,22 @@ module top#(
     parameter clk_1p5m_para  = clk_6m_para/4
 )(
     input        clk    ,
-    input        rst    , //S1按键
-    
-    //audio接口
-    output       HP_BCK   , //同clk_1p536m
-    output       HP_WS    , //左右声道切换信号，低电平对应左声道
-    output       HP_DIN   , //dac串行数据输入信号
-    output       PA_EN      //音频功放使能，高电平有效
+    input        rst    , //S1 button
+
+    //audio interface
+    output       HP_BCK   , //same as clk_1p536m
+    output       HP_WS    , //left/right channel select signal, low level corresponds to left channel
+    output       HP_DIN   , //DAC serial data input signal
+    output       PA_EN      //audio power amplifier enable, active high
 );
 
 wire rst_n;
 
-assign PA_EN = 1'b1;//PA常开
+assign PA_EN = 1'b1;//PA always on
 assign rst_n = !rst ;
 
-wire clk_6m_w;//6MHz,为产生1.5MHz
-wire clk_1p5m_w;//1.536MHz近似时钟
+wire clk_6m_w;//6MHz, used to generate 1.5MHz
+wire clk_1p5m_w;//1.536MHz approximate clock
 
 // generate clk_6m
 parameter clk_6m_cnt_para = clk_frequency/clk_6m_para  ;
@@ -63,8 +63,8 @@ assign clk_1p5m_w = clk_1p5m;
 
 // read wave data
 
-wire req_w;//读请求
-wire [15:0] q_w;//rom读出的数据
+wire req_w;//read request
+wire [15:0] q_w;//data read from ROM
 
 rom_save_sin rom_save_sin_inst(
 .clk(clk),
@@ -74,15 +74,15 @@ rom_save_sin rom_save_sin_inst(
 
 // audio driver
 audio_drive u_audio_drive_0(
-    .clk_1p536m(clk_1p5m_w),//bit时钟，每个采样点占32个clk_1p536m(左右声道各16)
-    .rst_n     (rst_n),//低电平有效异步复位信号
-    //用户数据接口
+    .clk_1p536m(clk_1p5m_w),//bit clock, each sample occupies 32 clk_1p536m cycles (16 for left and 16 for right channel)
+    .rst_n     (rst_n),//active low asynchronous reset signal
+    //user data interface
     .idata     (q_w),
-    .req       (req_w),//数据请求信号，可接外部FIFO的读请求(为避免空读，尽量和!fifo_empty相与后作为fifo_rd)
-    //audio接口
-    .HP_BCK   (HP_BCK),//同clk_1p536m
-    .HP_WS    (HP_WS),//左右声道切换信号，低电平对应左声道
-    .HP_DIN   (HP_DIN)//dac串行数据输入信号
+    .req       (req_w),//data request signal, can be connected to external FIFO read request (to avoid empty reads, AND with !fifo_empty before using as fifo_rd)
+    //audio interface
+    .HP_BCK   (HP_BCK),//same as clk_1p536m
+    .HP_WS    (HP_WS),//left/right channel select signal, low level corresponds to left channel
+    .HP_DIN   (HP_DIN)//DAC serial data input signal
 );
 
 endmodule

@@ -6,14 +6,6 @@
 *.exe
 *.o
 *.so
-*.fs
-
-
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
 
 # OS generated files #
 ######################
@@ -24,3 +16,20 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Gowin EDA build outputs #
+############################
+**/impl/gwsynthesis/
+**/impl/pnr/
+**/impl/temp/
+
+# Gowin user-specific project settings
+*.gprj.user
+
+# Gowin IP core synthesis reports/logs
+*_syn.rpt.html
+*_syn_resource.html
+*_syn_rsc.xml
+*.log
+*.sql
+*.sqlite
